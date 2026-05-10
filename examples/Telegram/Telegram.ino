@@ -3,6 +3,10 @@
 #include <WiFiClientSecure.h>
 
 #include <DuinoClaw.h>
+
+// Build'in Tools (option)
+#include <Tools/GetCurrentTimeTool.h>
+
 #include <UniversalTelegramBot.h>
 
 static const char * TAG = "Main";
@@ -93,6 +97,10 @@ void setup() {
     now = time(nullptr);
   }
   ESP_LOGI(TAG, "Now: %d", now);
+
+  // Add get_current_time tool
+  static GetCurrentTimeTool get_current_time_tool(7 /* Timezone GMT+7 */);
+  Claw.registerTool(&get_current_time_tool);
 
   // Add set_gpio_output tool
   static Tool set_gpio_output_tool("set_gpio_output_level", "Call this for set GPIO to LOW (0) or HIGH (1)");

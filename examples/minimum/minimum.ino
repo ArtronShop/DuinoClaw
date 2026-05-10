@@ -2,6 +2,9 @@
 #include <WiFi.h>
 #include <DuinoClaw.h>
 
+// Build'in Tools (option)
+#include <Tools/GetCurrentTimeTool.h>
+
 static const char * TAG = "Main";
 
 // WiFi Configs
@@ -41,6 +44,10 @@ void setup() {
     delay(50);
   }
   ESP_LOGI(TAG, "WiFi Connected !");
+
+  // Add get_current_time tool
+  static GetCurrentTimeTool get_current_time_tool(7 /* Timezone GMT+7 */);
+  Claw.registerTool(&get_current_time_tool);
 
   // Add set_gpio_output tool
   static Tool set_gpio_output_tool("set_gpio_output_level", "Call this for set GPIO to LOW (0) or HIGH (1)");
