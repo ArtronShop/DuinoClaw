@@ -1,0 +1,27 @@
+{
+  "name":"DuinoClaw",
+  "description":"Embed an AI agent into your Arduino projects with ease.",
+  "keywords":"Communication,AI,Telegram,Arduino",
+  "authors": {
+    "name": "Sonthaya Nongnuch <sonthaya.nt@hotmail.com>",
+    "maintainer": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArtronShop/DuinoClaw"
+  },
+  "version": "1.0.0",
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "*",
+  "dependencies": [
+    {
+      "name": "ArduinoJson"
+    },
+    {
+      "name": "UniversalTelegramBot"
+    }
+  ],
+  "build": {
+  }
+}
