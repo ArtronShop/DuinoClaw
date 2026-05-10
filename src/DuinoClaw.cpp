@@ -3,11 +3,6 @@
 
 #include "OpenAI.h"
 
-static const char * SYSTEM_MESSAGE = 
-"You are an assistant running on an ESP32 with very limited memory.\n"
-"Keep all responses short, simple, and concise.\n"
-"Avoid unnecessary details. Use plain language.";
-
 static const char * TAG = "DuinoClaw";
 
 static const uint8_t PROMPT_REQ_FLAG = BIT0; // Set it when want to send 
@@ -50,7 +45,7 @@ void DuinoClaw::begin(LLM_Provider_t provider, LLM_Model_t model, const char * a
     // TODO: use provider to make object
     this->llm = new OpenAI(this->getModelId(), api_key);
 
-    String system_message = String(SYSTEM_MESSAGE);
+    String system_message = String(this->system_message);
     this->llm->addSystemMessage(system_message);
 }
 

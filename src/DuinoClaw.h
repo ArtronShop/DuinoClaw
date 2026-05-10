@@ -5,6 +5,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
+#include "SystemMessage.h"
 #include "LLM.h"
 #include "OpenAI.h"
 #include "Tool.h"
@@ -27,6 +28,7 @@ class DuinoClaw {
     public:
         DuinoClaw();
 
+        void setSystemMessage(const char * message) { this->system_message = message; }
         void begin(LLM_Provider_t, LLM_Model_t, const char*) ;
         void loop() ; // for callback can run on main task
 
@@ -53,6 +55,8 @@ class DuinoClaw {
         const char * api_key = NULL;
 
         const char * model_id[3] = { "gpt-5.5", "gpt-5.4", "gpt-5.4-mini" };
+
+        const char * system_message = SYSTEM_MESSAGE_DEFAULT;
 
         OpenAI * llm = NULL;
         
