@@ -144,7 +144,7 @@ String OpenAI::getResponses(String prompt, bool * ok) {
         if (httpCode > 0) {
             ESP_LOGV(TAG, "[HTTP] POST... code: %d", httpCode);
             String payload = http.getString();
-            Serial.println(payload);
+            ESP_LOGV(TAG, "Payload: %s", payload.c_str());
             if (httpCode == HTTP_CODE_OK) {
                 JsonDocument doc;
                 deserializeJson(doc, payload);

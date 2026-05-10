@@ -59,7 +59,7 @@ void setup() {
   Claw.onResponses(responses_cb);
   Claw.begin(OPEN_AI, GPT_5_4_MINI, api_key);
 
-  Claw.prompt("Plz set GPIO 5 to HIGH");
+  Claw.startConsole(Serial);
 }
 
 void loop() {

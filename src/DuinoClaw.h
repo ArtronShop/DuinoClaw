@@ -36,12 +36,16 @@ class DuinoClaw {
         const char * getAPIKey() ;
 
         String prompt(String message, bool wait = false);
+        bool isProcessing() ;
 
         typedef std::function<void(bool, String)> ResponsesCallback;
         void onResponses(ResponsesCallback cb) { responsesCallback = cb; };
 
         // Tools
         void registerTool(Tool * tool) ;
+
+        // Console
+        void startConsole(Stream & consoleStream) ;
 
     private:
         LLM_Provider_t provider = OPEN_AI;
@@ -54,8 +58,10 @@ class DuinoClaw {
         
         EventGroupHandle_t eventHandle = NULL;
 
-        TaskHandle_t duinoClawTaskHandle = NULL;
         ResponsesCallback responsesCallback = NULL;
+
+        Stream * consoleStream = NULL;
+        TaskHandle_t consoleReadTaskHandle = NULL;
 
 };
 

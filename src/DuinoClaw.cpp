@@ -12,6 +12,7 @@ static const char * TAG = "DuinoClaw";
 
 static const uint8_t PROMPT_REQ_FLAG = BIT0; // Set it when want to send 
 static const uint8_t PROCEESS_FINISH_FLAG = BIT1; // Set it after responses for call ResponsesCallback on main task
+static const uint8_t PROCEESSING_FLAG = BIT2; // Set when start and clear after finish
 
 String prompt_message;
 bool responses_ok = false;
@@ -39,11 +40,6 @@ const char * DuinoClaw::getAPIKey() {
     return this->api_key;
 }
 
-typedef struct {
-    EventGroupHandle_t eventHandle;
-    OpenAI * llm;
-} DuinoClawLoopTaskArgs_t;
-
 void DuinoClaw::begin(LLM_Provider_t provider, LLM_Model_t model, const char * api_key) {
     this->provider = provider;
     this->model = model;
@@ -56,55 +52,22 @@ void DuinoClaw::begin(LLM_Provider_t provider, LLM_Model_t model, const char * a
 
     String system_message = String(SYSTEM_MESSAGE);
     this->llm->addSystemMessage(system_message);
-
-    static DuinoClawLoopTaskArgs_t task_args;
-    task_args.eventHandle = this->eventHandle;
-    task_args.llm = llm;
-
-    /* xTaskCreateUniversal(
-        DuinoClawLoopTask, "DuinoClaw", DUINO_CLAW_TASK_STACK_SIZE, &task_args, 
-        5, &duinoClawTaskHandle, DUINO_CLAW_TASK_CORE_ID); */
-}
-
-void DuinoClaw::loop() {
-    { // ---------
-        uint32_t bits = xEventGroupWaitBits(eventHandle, PROMPT_REQ_FLAG, pdTRUE, pdTRUE, 0);
-        if (bits & PROMPT_REQ_FLAG) {
-            responses_message = llm->getResponses(prompt_message, &responses_ok);
-            // xEventGroupSetBits(eventHandle, PROCEESS_FINISH_FLAG);
-            if (responsesCallback) {
-                responsesCallback(responses_ok, responses_message);
-            }
-        }
-    } // ---------
-
-    /* uint32_t bits = xEventGroupWaitBits(eventHandle, PROCEESS_FINISH_FLAG, pdTRUE, pdTRUE, 0);
-    if (bits & PROCEESS_FINISH_FLAG) {
-        if (responsesCallback) {
-            responsesCallback(responses_ok, responses_message);
-        }
-    } */
 }
 
 String DuinoClaw::prompt(String message, bool wait) {
     prompt_message = message;
-    xEventGroupSetBits(eventHandle, PROMPT_REQ_FLAG);
+    xEventGroupSetBits(eventHandle, PROMPT_REQ_FLAG | PROCEESSING_FLAG);
     if (wait) {
-        /* uint32_t bits = xEventGroupWaitBits(eventHandle, PROCEESS_FINISH_FLAG, pdTRUE, pdTRUE, 60000 / portTICK_PERIOD_MS); // max wait 1 mins
-        if (bits & PROCEESS_FINISH_FLAG) {
-            if (responsesCallback) {
-                responsesCallback(responses_ok, responses_message);
-            }
-            return responses_message;
-        } else {
-            ESP_LOGE(TAG, "wait process finish timeout");
-        } */
         responses_message = llm->getResponses(prompt_message, &responses_ok);
 
         return responses_message;
     }
 
     return String();
+}
+
+bool DuinoClaw::isProcessing() {
+    return xEventGroupGetBits(eventHandle) & PROCEESSING_FLAG;
 }
 
 ToolItem_t * tool_first = NULL;
@@ -128,19 +91,62 @@ void DuinoClaw::registerTool(Tool * tool) {
     tool_last = item;
 }
 
-void DuinoClawLoopTask(void * args) {
-    DuinoClawLoopTaskArgs_t * task_args = (DuinoClawLoopTaskArgs_t *) args;
-    EventGroupHandle_t eventHandle = task_args->eventHandle;
-    OpenAI * llm = task_args->llm;
+void DuinoClaw::startConsole(Stream & consoleStream) {
+    consoleStream.setTimeout(100);
+    this->consoleStream = &consoleStream;
 
-    while(1) {
-        uint32_t bits = xEventGroupWaitBits(eventHandle, PROMPT_REQ_FLAG, pdTRUE, pdTRUE, portMAX_DELAY);
+    consoleStream.println();
+    consoleStream.println();
+    consoleStream.println("DuinoClaw Console Start");
+    consoleStream.println();
+    consoleStream.print("> ");
+
+    xTaskCreate([](void * consoleStream) {
+        Stream * console = (Stream *) consoleStream;
+
+        while(1) {
+            if (Claw.isProcessing()) {
+                delay(50);
+                continue;
+            }
+
+            String line = "";
+            while(console->available()) {
+                char c = console->read();
+                if (c == '\r') continue;
+                if (c == '\n') {
+                    console->println();
+
+                    Claw.prompt(line);
+
+                    line = "";
+                    continue;
+                }
+                console->write(c);
+                line += c;
+            }
+
+            delay(10);
+        }
+        vTaskDelete(NULL);
+    }, "ConsoleReadTask", 1 * 1024, &consoleStream, 5, &consoleReadTaskHandle);
+}
+
+void DuinoClaw::loop() {
+    {
+        uint32_t bits = xEventGroupWaitBits(eventHandle, PROMPT_REQ_FLAG, pdTRUE, pdTRUE, 0);
         if (bits & PROMPT_REQ_FLAG) {
             responses_message = llm->getResponses(prompt_message, &responses_ok);
-            xEventGroupSetBits(eventHandle, PROCEESS_FINISH_FLAG);
+            xEventGroupClearBits(eventHandle, PROCEESSING_FLAG);
+            if (responsesCallback) {
+                responsesCallback(responses_ok, responses_message);
+            }
+            if (this->consoleStream) {
+                this->consoleStream->println(responses_message);
+                this->consoleStream->print("> ");
+            }
         }
     }
-    vTaskDelete(NULL);
 }
 
 DuinoClaw Claw;
