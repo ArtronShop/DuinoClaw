@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include "OpenAI.h"
+#include "ToolSet.h"
 
 static const char * TAG = "DuinoClaw";
 
@@ -84,6 +85,14 @@ void DuinoClaw::registerTool(Tool * tool) {
         tool_last->next = item;
     }
     tool_last = item;
+}
+
+void DuinoClaw::registerTool(ToolSet * toolset) {
+    ToolSet::ToolSetItem_t * item = toolset->getFirst();
+    while (item) {
+        registerTool(item->tool);
+        item = (ToolSet::ToolSetItem_t *) item->next;
+    }
 }
 
 void DuinoClaw::startConsole(Stream & consoleStream) {

@@ -9,6 +9,7 @@
 #include "LLM.h"
 #include "OpenAI.h"
 #include "Tool.h"
+#include "ToolSet.h"
 #include "ToolRegister.h"
 
 #define DUINO_CLAW_TASK_STACK_SIZE (64 * 1024)
@@ -45,6 +46,7 @@ class DuinoClaw {
 
         // Tools
         void registerTool(Tool * tool) ;
+        void registerTool(ToolSet * toolset) ;
 
         // Console
         void startConsole(Stream & consoleStream) ;
