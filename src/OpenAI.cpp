@@ -113,6 +113,20 @@ String OpenAI::getResponses(String prompt, bool * ok) {
                     payload += "        \"" + property_name + "\": {";
                     payload += "          \"description\": \"" + property_description + "\",";
                     payload += "          \"type\": \"" + property_type + "\"";
+                    if (property_item->enum_values && property_item->enum_count > 0) {
+                        bool quote = (property_item->type == Tool::TYPE_STRING);
+                        payload += ",";
+                        payload += "          \"enum\": [";
+                        for (uint8_t e = 0; e < property_item->enum_count; e++) {
+                            if (quote) payload += "\"";
+                            payload += String(property_item->enum_values[e]);
+                            if (quote) payload += "\"";
+                            if (e < property_item->enum_count - 1) {
+                                payload += ",";
+                            }
+                        }
+                        payload += "]";
+                    }
                     payload += "        }";
                     if (property_item->next != NULL) {
                         payload += ",";

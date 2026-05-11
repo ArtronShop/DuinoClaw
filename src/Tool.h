@@ -19,11 +19,14 @@ class Tool {
             const char * description;
             DataType_t type;
             bool required;
+            const char ** enum_values;
+            uint8_t enum_count;
             void * next;
         } ToolPropertyItem_t;
 
         Tool(const char * name, const char * description) ;
         void addProperty(const char * name, const char * description, DataType_t type, bool required) ;
+        void addEnumProperty(const char * name, const char * description, DataType_t type, const char ** enum_values, uint8_t enum_count, bool required) ;
         void onCall(ToolFunction fn) ;
 
         const char * getName() { return this->name; };
