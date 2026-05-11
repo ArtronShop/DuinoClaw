@@ -117,7 +117,9 @@ void DuinoClaw::startConsole(Stream & consoleStream) {
             String line = "";
             while(console->available()) {
                 char c = console->read();
-                if (c == '\r') continue;
+                if (c == '\r') {
+                    continue;
+                }
                 if (c == '\n') {
                     console->println();
 

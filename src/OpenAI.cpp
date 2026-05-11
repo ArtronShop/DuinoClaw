@@ -122,13 +122,17 @@ String OpenAI::getResponses(String prompt, bool * ok) {
                                 payload += "\"";
                                 payload += str_enum[e];
                                 payload += "\"";
-                                if (e < property_item->enum_count - 1) payload += ",";
+                                if (e < property_item->enum_count - 1) {
+                                    payload += ",";
+                                }
                             }
                         } else {
                             const long * long_enum = (const long *) property_item->enum_values;
                             for (uint8_t e = 0; e < property_item->enum_count; e++) {
                                 payload += long_enum[e];
-                                if (e < property_item->enum_count - 1) payload += ",";
+                                if (e < property_item->enum_count - 1) {
+                                    payload += ",";
+                                }
                             }
                         }
                         payload += "]";

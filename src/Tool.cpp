@@ -77,14 +77,21 @@ String Tool::call(JsonObject arguments) {
         if (!val.isNull()) {
             // 2. Type check
             bool type_ok = false;
-            if (prop->type == TYPE_STRING) type_ok = val.is<const char *>();
-            if (prop->type == TYPE_NUMBER) type_ok = val.is<double>();
-            if (prop->type == TYPE_INTEGER) type_ok = val.is<long>();
+            if (prop->type == TYPE_STRING) {
+                type_ok = val.is<const char *>();
+            } else if (prop->type == TYPE_NUMBER) {
+                type_ok = val.is<double>();
+            } else if (prop->type == TYPE_INTEGER) {
+                type_ok = val.is<long>();
+            }
 
             if (!type_ok) {
-                const char * expected = (prop->type == TYPE_STRING) ? "string"
-                                      : (prop->type == TYPE_NUMBER) ? "number"
-                                      : "integer";
+                const char * expected = "integer";
+                if (prop->type == TYPE_STRING) {
+                    expected = "string";
+                } else if (prop->type == TYPE_NUMBER) {
+                    expected = "number";
+                }
                 return String("ERROR: argument '") + prop->name + "' must be " + expected;
             }
 
@@ -96,17 +103,25 @@ String Tool::call(JsonObject arguments) {
                     const char ** str_enum = (const char **) prop->enum_values;
                     const char * val_str = val.as<const char *>();
                     for (uint8_t i = 0; i < prop->enum_count; i++) {
-                        if (i > 0) allowed += ", ";
+                        if (i > 0) {
+                            allowed += ", ";
+                        }
                         allowed += str_enum[i];
-                        if (strcmp(val_str, str_enum[i]) == 0) found = true;
+                        if (strcmp(val_str, str_enum[i]) == 0) {
+                            found = true;
+                        }
                     }
                 } else {
                     const long * long_enum = (const long *) prop->enum_values;
                     long val_long = val.as<long>();
                     for (uint8_t i = 0; i < prop->enum_count; i++) {
-                        if (i > 0) allowed += ", ";
+                        if (i > 0) {
+                            allowed += ", ";
+                        }
                         allowed += long_enum[i];
-                        if (val_long == long_enum[i]) found = true;
+                        if (val_long == long_enum[i]) {
+                            found = true;
+                        }
                     }
                 }
                 if (!found) {
