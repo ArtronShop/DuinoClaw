@@ -169,10 +169,9 @@ String OpenAI::getResponses(String prompt, bool * ok) {
             ESP_LOGV(TAG, "[HTTP] POST... code: %d", httpCode);
             String payload = http.getString();
             ESP_LOGV(TAG, "Payload: %s", payload.c_str());
+            JsonDocument doc;
+            deserializeJson(doc, payload);
             if (httpCode == HTTP_CODE_OK) {
-                JsonDocument doc;
-                deserializeJson(doc, payload);
-
                 if (doc["output"].is<JsonArray>()) {
                     int len = doc["output"].size();
                     for (uint32_t i=0;i<len;i++) {
@@ -189,7 +188,10 @@ String OpenAI::getResponses(String prompt, bool * ok) {
                                     String content = doc["output"][i]["content"][0]["text"].as<String>();
                                     this->putConversationMessage(ROLE_ASSISTANT, content);
 
-                                    responses = content;
+                                    if (responses.length() > 0) {
+                                        responses += '\n';
+                                    }
+                                    responses += content;
                                     end = true;
                                     if (ok) {
                                         *ok = true;
@@ -246,7 +248,11 @@ String OpenAI::getResponses(String prompt, bool * ok) {
                     }
                 }
             } else {
-                ESP_LOGV(TAG, "[HTTP] POST... failed, error: %s", http.errorToString(httpCode).c_str());
+                responses = "HTTP_ERROR: " + String(httpCode);
+                if (!doc["error"]["message"].isNull()) {
+                    responses += " - " + doc["error"]["message"].as<String>();
+                }
+                ESP_LOGE(TAG, "%s", responses.c_str());
 
                 end = true;
                 if (ok) {
@@ -254,8 +260,9 @@ String OpenAI::getResponses(String prompt, bool * ok) {
                 }
             }
         } else {
-            ESP_LOGV(TAG, "[HTTP] POST... failed, error: %s", http.errorToString(httpCode).c_str());
+            ESP_LOGE(TAG, "%s", http.errorToString(httpCode).c_str());
 
+            responses = "ERROR: " + http.errorToString(httpCode);
             end = true;
             if (ok) {
                 *ok = false;
