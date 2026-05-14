@@ -45,7 +45,7 @@ typedef struct __attribute__((__packed__)) {
 
 class LLM {
     public:
-        virtual String getResponses(String prompt, bool * ok = NULL) ;
+        virtual String getResponses(String prompt, bool * ok = NULL) = 0;
         bool addSystemMessage(String& content) ;
 
     protected:

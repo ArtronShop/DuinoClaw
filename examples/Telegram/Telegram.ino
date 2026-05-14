@@ -10,8 +10,6 @@
 
 #include <UniversalTelegramBot.h>
 
-static const char * TAG = "Main";
-
 // WiFi credentials
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
@@ -34,6 +32,7 @@ void handleNewMessages(int numNewMessages) {
   for (int i = 0; i < numNewMessages; i++) {
     String chat_id = bot.messages[i].chat_id;
     String text = bot.messages[i].text;
+    Serial.println("[" + chat_id + "] New Message: " + text);
 
     if (text == "/start") {
       bot.sendMessage(chat_id, "Hello! I am your ESP32 AI assistant. Send me a message to get started.");
@@ -52,14 +51,14 @@ void handleNewMessages(int numNewMessages) {
 
 // Called when the AI finishes responding — sends the reply back to Telegram
 void responses_cb(bool ok, String message) {
-  if (last_chat_id.length() == 0) {
-    return;
-  }
   if (ok) {
-    bot.sendMessage(last_chat_id, message);
+    Serial.print("Responses: ");
   } else {
-    ESP_LOGE(TAG, "Error: %s", message.c_str());
-    bot.sendMessage(last_chat_id, "Error: " + message);
+    Serial.print("ERROR: ");
+  }
+  Serial.println(message);
+  if (last_chat_id.length() > 0) {
+    bot.sendMessage(last_chat_id, message);
   }
 }
 
@@ -67,23 +66,25 @@ void setup() {
   Serial.begin(115200);
 
   // Connect to WiFi
-  ESP_LOGI(TAG, "WiFi Connect...");
+  Serial.println();
+  Serial.print("WiFi Connecting");
   WiFi.begin(ssid, password);
   secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Required for Telegram TLS
   while (!WiFi.isConnected()) {
-    delay(50);
+    delay(500);
+    Serial.print(".");
   }
-  ESP_LOGI(TAG, "WiFi Connected!");
+  Serial.println(" Connected !");
 
   // Sync time via NTP — required for TLS certificate validation
-  ESP_LOGI(TAG, "Retrieving time...");
+  Serial.print("Retrieving time...");
   configTime(0, 0, "pool.ntp.org");
   time_t now = time(nullptr);
   while (now < 24 * 3600) {
     delay(100);
     now = time(nullptr);
   }
-  ESP_LOGI(TAG, "Time synced");
+  Serial.println(" Time synced");
 
   // Register built-in tools so the AI can use them
   static GetCurrentTimeTool time_tool(7); // GMT+7
@@ -97,7 +98,7 @@ void setup() {
 
   // Start the AI agent
   Claw.begin(OPEN_AI, GPT_5_4_MINI, api_key);
-  ESP_LOGI(TAG, "Bot ready");
+  Serial.println("DuinoClaw ready !");
 }
 
 void loop() {
@@ -108,7 +109,6 @@ void loop() {
   if ((millis() - bot_lasttime) >= 1000) {
     int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
     while (numNewMessages) {
-      ESP_LOGI(TAG, "Got %d new message(s)", numNewMessages);
       handleNewMessages(numNewMessages);
       numNewMessages = bot.getUpdates(bot.last_message_received + 1);
     }

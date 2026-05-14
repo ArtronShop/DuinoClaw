@@ -125,6 +125,8 @@ void DuinoClaw::startConsole(Stream & consoleStream) {
 
                     Claw.prompt(line);
 
+                    console->println("Processing...");
+
                     line = "";
                     continue;
                 }

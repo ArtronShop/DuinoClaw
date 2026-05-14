@@ -7,8 +7,6 @@
 #include <Tools/GPIOTool.h>
 #include <Tools/WiFiTool.h>
 
-static const char * TAG = "Main";
-
 // WiFi credentials
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
@@ -20,12 +18,14 @@ void setup() {
   Serial.begin(115200);
 
   // Connect to WiFi
-  ESP_LOGI(TAG, "WiFi Connect...");
+  Serial.println();
+  Serial.print("WiFi Connecting");
   WiFi.begin(ssid, password);
   while (!WiFi.isConnected()) {
-    delay(50);
+    delay(500);
+    Serial.print(".");
   }
-  ESP_LOGI(TAG, "WiFi Connected!");
+  Serial.println(" Connected !");
 
   // Register built-in tools so the AI can use them
   static GetCurrentTimeTool time_tool(7); // GMT+7

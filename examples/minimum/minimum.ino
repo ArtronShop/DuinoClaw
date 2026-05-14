@@ -2,10 +2,8 @@
 #include <WiFi.h>
 #include <DuinoClaw.h>
 
-static const char * TAG = "Main";
-
 // WiFi Configs
-const char * ssid = " -- WiFi Name --";
+const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
 
 // OpenAI API Key
@@ -13,23 +11,25 @@ const char * api_key = "-- OpenAI Key --";
 
 void responses_cb(bool ok, String message) {
   if (ok) {
-    ESP_LOGV(TAG, "response ok, message=%s", message.c_str());
+    Serial.print("Responses: ");
   } else {
-    ESP_LOGE(TAG, "response error with '%s'", message.c_str());
+    Serial.print("ERROR: ");
   }
+  Serial.println(message);
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.setDebugOutput(true);
 
-  // WiFi Connact
-  ESP_LOGI(TAG, "WiFi Connect...");
+  // Connect to WiFi
+  Serial.println();
+  Serial.print("WiFi Connecting");
   WiFi.begin(ssid, password);
-  while(!WiFi.isConnected()) {
-    delay(50);
+  while (!WiFi.isConnected()) {
+    delay(500);
+    Serial.print(".");
   }
-  ESP_LOGI(TAG, "WiFi Connected !");
+  Serial.println(" Connected !");
 
   Claw.onResponses(responses_cb);
   Claw.begin(OPEN_AI, GPT_5_4_MINI, api_key);

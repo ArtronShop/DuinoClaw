@@ -7,8 +7,6 @@
 #include <Tools/GPIOTool.h>
 #include <Tools/WiFiTool.h>
 
-static const char * TAG = "Main";
-
 // WiFi credentials
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
@@ -20,12 +18,14 @@ void setup() {
   Serial.begin(115200);
 
   // Connect to WiFi
-  ESP_LOGI(TAG, "WiFi Connect...");
+  Serial.println();
+  Serial.print("WiFi Connecting");
   WiFi.begin(ssid, password);
   while (!WiFi.isConnected()) {
-    delay(50);
+    delay(500);
+    Serial.print(".");
   }
-  ESP_LOGI(TAG, "WiFi Connected!");
+  Serial.println(" Connected !");
 
   // Override the default system message to give the AI a specific role.
   // Call this before Claw.begin().
@@ -47,10 +47,11 @@ void setup() {
   // Called when the AI finishes responding
   Claw.onResponses([](bool ok, String message) {
     if (ok) {
-      Serial.println(message);
+      Serial.print("Responses: ");
     } else {
-      ESP_LOGE(TAG, "Error: %s", message.c_str());
+      Serial.print("ERROR: ");
     }
+    Serial.println(message);
   });
 
   // Start the AI agent

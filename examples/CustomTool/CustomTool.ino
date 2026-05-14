@@ -2,8 +2,6 @@
 #include <WiFi.h>
 #include <DuinoClaw.h>
 
-static const char * TAG = "Main";
-
 // WiFi credentials
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
@@ -30,12 +28,14 @@ void setup() {
   pinMode(PIN_LED_BLUE, OUTPUT);
 
   // Connect to WiFi
-  ESP_LOGI(TAG, "WiFi Connect...");
+  Serial.println();
+  Serial.print("WiFi Connecting");
   WiFi.begin(ssid, password);
   while (!WiFi.isConnected()) {
-    delay(50);
+    delay(500);
+    Serial.print(".");
   }
-  ESP_LOGI(TAG, "WiFi Connected!");
+  Serial.println(" Connected !");
 
   // --- Custom Tool 1: LED color (string enum) ---
   // addEnumProperty restricts the AI to only send values in the COLORS array
@@ -43,6 +43,10 @@ void setup() {
   led_tool.addEnumProperty("color", "LED color to display", COLORS, 4, true);
   led_tool.onCall([](JsonObject args) -> String {
     String color = args["color"].as<String>();
+
+    Serial.print("'set_led_color' call with color=");
+    Serial.println(color);
+
     digitalWrite(PIN_LED_RED, color == "red" ? HIGH : LOW);
     digitalWrite(PIN_LED_GREEN, color == "green" ? HIGH : LOW);
     digitalWrite(PIN_LED_BLUE, color == "blue" ? HIGH : LOW);
@@ -58,6 +62,12 @@ void setup() {
   buzzer_tool.onCall([](JsonObject args) -> String {
     int pin = args["pin"].as<int>();
     int state = args["state"].as<int>();
+
+    Serial.print("'buzzer_tool' call with pin=");
+    Serial.print(pin);
+    Serial.print(", state=");
+    Serial.println(state);
+
     pinMode(pin, OUTPUT);
     digitalWrite(pin, state);
     return state ? "Buzzer on" : "Buzzer off";
@@ -67,10 +77,11 @@ void setup() {
   // Called when the AI finishes responding
   Claw.onResponses([](bool ok, String message) {
     if (ok) {
-      Serial.println(message);
+      Serial.print("Responses: ");
     } else {
-      ESP_LOGE(TAG, "Error: %s", message.c_str());
+      Serial.print("ERROR: ");
     }
+    Serial.println(message);
   });
 
   // Start the AI agent
