@@ -11,8 +11,8 @@
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
 
-// OpenAI API key — get from https://platform.openai.com/api-keys
-const char * api_key = "-- OpenAI Key --";
+// OpenAI/ThaiLLM API key — get from https://platform.openai.com/api-keys, https://playground.thaillm.or.th/
+const char * api_key = "-- OpenAI/ThaiLLM Key --";
 
 void setup() {
   Serial.begin(115200);

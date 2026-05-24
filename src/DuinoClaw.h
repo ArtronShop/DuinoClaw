@@ -8,6 +8,7 @@
 #include "SystemMessage.h"
 #include "LLM.h"
 #include "OpenAI.h"
+#include "ThaiLLM.h"
 #include "Tool.h"
 #include "ToolSet.h"
 #include "ToolRegister.h"
@@ -17,12 +18,20 @@
 
 typedef enum {
     OPEN_AI,
+    THAI_LLM
 } LLM_Provider_t;
 
 typedef enum {
+    // OpenAI
     GPT_5_5 = 0, // GPT-5.5,
     GPT_5_4, // GPT-5.4
     GPT_5_4_MINI, // GPT-5.4 mini
+
+    // ThaiLLM
+    OPEN_THAI_GPT, // OpenThaiGPT-ThaiLLM-8B-Instruct-v7.2
+    TYPHOON, // Typhoon-S-ThaiLLM-8B-Instruct
+    PATHUMMA, // Pathumma-ThaiLLM-qwen3-8b-think-3.0.0
+    THALLE, // THaLLE-0.2-ThaiLLM-8B-fa
 } LLM_Model_t;
 
 class DuinoClaw {
@@ -56,7 +65,14 @@ class DuinoClaw {
         LLM_Model_t model = GPT_5_4_MINI;
         const char * api_key = NULL;
 
-        const char * model_id[3] = { "gpt-5.5", "gpt-5.4", "gpt-5.4-mini" };
+        const char * model_id[7] = { 
+            // OpenAI
+            "gpt-5.5", "gpt-5.4", "gpt-5.4-mini", 
+
+            // ThaiLLM
+            "OpenThaiGPT-ThaiLLM-8B-Instruct-v7.2", "Typhoon-S-ThaiLLM-8B-Instruct", 
+            "Pathumma-ThaiLLM-qwen3-8b-think-3.0.0", "THaLLE-0.2-ThaiLLM-8B-fa",
+         };
 
         const char * system_message = SYSTEM_MESSAGE_DEFAULT;
 

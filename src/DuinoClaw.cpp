@@ -43,8 +43,13 @@ void DuinoClaw::begin(LLM_Provider_t provider, LLM_Model_t model, const char * a
 
     this->eventHandle = xEventGroupCreate();
     
-    // TODO: use provider to make object
-    this->llm = new OpenAI(this->getModelId(), api_key);
+    if (provider == OPEN_AI) {
+        this->llm = new OpenAI(this->getModelId(), api_key);
+    } else if (provider == THAI_LLM) {
+        this->llm = new ThaiLLM(this->getModelId(), api_key);
+    } else {
+        ESP_LOGE(TAG, "invalid 'provider'");
+    }
 
     String system_message = String(this->system_message);
     this->llm->addSystemMessage(system_message);

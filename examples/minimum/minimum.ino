@@ -6,8 +6,8 @@
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
 
-// OpenAI API Key
-const char * api_key = "-- OpenAI Key --";
+// AI Provider API Key
+const char * api_key = "-- OpenAI/ThaiLLM Key --";
 
 void responses_cb(bool ok, String message) {
   if (ok) {

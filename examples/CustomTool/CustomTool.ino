@@ -6,8 +6,8 @@
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
 
-// OpenAI API key — get from https://platform.openai.com/api-keys
-const char * api_key = "-- OpenAI Key --";
+// OpenAI/ThaiLLM API key — get from https://platform.openai.com/api-keys, https://playground.thaillm.or.th/
+const char * api_key = "-- OpenAI/ThaiLLM Key --";
 
 // GPIO pins for RGB LED
 #define PIN_LED_RED   25

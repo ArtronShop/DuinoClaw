@@ -14,8 +14,8 @@
 const char * ssid = "-- WiFi Name --";
 const char * password = "-- WiFi Password --";
 
-// OpenAI API key — get from https://platform.openai.com/api-keys
-const char * api_key = "-- OpenAI Key --";
+// OpenAI/ThaiLLM API key — get from https://platform.openai.com/api-keys, https://playground.thaillm.or.th/
+const char * api_key = "-- OpenAI/ThaiLLM Key --";
 
 // Telegram bot token — get from @BotFather on Telegram
 #define BOT_TOKEN "-- Telegram Bot Token --"

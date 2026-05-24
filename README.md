@@ -2,7 +2,7 @@
 
 Embed an AI agent into your Arduino/ESP32 projects with ease.
 
-DuinoClaw lets your ESP32 talk to an LLM (OpenAI), maintain conversation history, and execute custom tools (functions). Responses are dispatched on the main Arduino task via `Claw.loop()`.
+DuinoClaw lets your ESP32 talk to an LLM (OpenAI or ThaiLLM), maintain conversation history, and execute custom tools (functions). Responses are dispatched on the main Arduino task via `Claw.loop()`.
 
 ## Requirements
 
@@ -60,9 +60,28 @@ Initialize the AI agent.
 
 | Parameter | Type | Options |
 |---|---|---|
-| `provider` | `LLM_Provider_t` | `OPEN_AI` |
-| `model` | `LLM_Model_t` | `GPT_5_5`, `GPT_5_4`, `GPT_5_4_MINI` |
-| `api_key` | `const char*` | Your OpenAI API key |
+| `provider` | `LLM_Provider_t` | `OPEN_AI`, `THAI_LLM` |
+| `model` | `LLM_Model_t` | See table below |
+| `api_key` | `const char*` | API key for the selected provider |
+
+**OpenAI models** (`OPEN_AI`):
+
+| Constant | Model ID |
+|---|---|
+| `GPT_5_5` | `gpt-5.5` |
+| `GPT_5_4` | `gpt-5.4` |
+| `GPT_5_4_MINI` | `gpt-5.4-mini` |
+
+**ThaiLLM models** (`THAI_LLM`):
+
+| Constant | Model ID |
+|---|---|
+| `OPEN_THAI_GPT` | `OpenThaiGPT-ThaiLLM-8B-Instruct-v7.2` |
+| `TYPHOON` | `Typhoon-S-ThaiLLM-8B-Instruct` |
+| `PATHUMMA` | `Pathumma-ThaiLLM-qwen3-8b-think-3.0.0` |
+| `THALLE` | `THaLLE-0.2-ThaiLLM-8B-fa` |
+
+> **Note:** ThaiLLM uses the OpenAI-compatible Chat Completions API (`/v1/chat/completions`). Get an API key at [playground.thaillm.or.th/chat](https://playground.thaillm.or.th/chat/).
 
 ### `Claw.prompt(message, wait)`
 
@@ -338,6 +357,36 @@ void loop() {
     }
     last_check = millis();
   }
+}
+```
+
+---
+
+### ThaiLLM
+
+Use a Thai language model instead of OpenAI. Only the `provider` and `model` constants change — everything else stays the same.
+
+```cpp
+#include <Arduino.h>
+#include <WiFi.h>
+#include <DuinoClaw.h>
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin("ssid", "password");
+  while (!WiFi.isConnected()) delay(50);
+
+  Claw.onResponses([](bool ok, String message) {
+    Serial.println(ok ? message : "Error: " + message);
+  });
+
+  Claw.begin(THAI_LLM, OPEN_THAI_GPT, "your_thaillm_api_key");
+  Claw.prompt("สวัสดีครับ");
+}
+
+void loop() {
+  Claw.loop();
 }
 ```
 
